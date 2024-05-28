@@ -74,6 +74,11 @@ body {
 	padding-left:10px;
 }
 
+.add-new-paragraph {
+	margin-top: 4px;
+	margin-bottom: 4px;
+}
+
 .add-new {
 	color: #0000ff;
 	cursor: pointer;

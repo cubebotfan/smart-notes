@@ -102,11 +102,17 @@ function switchNote(id) {
 	showEditMenu();
 }
 
+function contentTyped(event) {
+	let note = document.querySelector(`.note[data-id="${selectedNote}"]`);
+	if (note) {
+		note.innerHTML = '*' + getTitle();
+	}
+}
+
 let notes = [];
 let selectedNote = -1;
 
 loadNotes();
-console.log(notes);
 
 let addNewButtons = [...document.getElementsByClassName("add-new")];
 addNewButtons.forEach(b=>{
@@ -122,3 +128,6 @@ let cancelButtons = [...document.getElementsByClassName("cancel-button")];
 cancelButtons.forEach(b=>{
 	b.addEventListener("click", cancelEdit);
 });
+
+document.getElementById('file-name').addEventListener("input",contentTyped);
+document.getElementById('file-content').addEventListener("input",contentTyped);

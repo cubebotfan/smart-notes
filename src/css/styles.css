@@ -41,6 +41,12 @@ a.bluelink {
   color: #0000FF;
 }
 
+/* - - - - - - - - - -
+	HIDDEN ITEMS
+	makes the element
+	invisible until the
+	class is removed
+ - - - - - - - - - - */
 .hide {
 	visibility: hidden;
 }
