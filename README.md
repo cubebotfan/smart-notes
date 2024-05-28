@@ -1,0 +1,1 @@
+Smart Note taking webpage using local storage

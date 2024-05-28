@@ -1,0 +1,150 @@
+@charset "utf-8";
+
+:root {
+	--app-main-window-width: 1000px;
+	--app-main-window-height: 600px;
+
+	--app-main-window-bar-height: 50px;
+
+	--app-sidebar-left: 0px; /* Change this to slide the sidebar into the left. Might not get time to implement */
+	--app-sidebar-width: 250px;
+
+	--app-file-name-size: 36px;
+	--app-file-content-size: 24px;
+
+	--app-notepad-footer-height: 50px;
+
+	--app-main-colour: #00008020;
+
+	--app-save-button-colour: #0000ff;
+}
+
+body {
+	width: 100vw;
+	height: 100vh;
+	background-image: url("../img/shahadat-rahman-voM1Z9cGPCU-unsplash.jpg"); /* https://unsplash.com/photos/red-and-blue-boke-lights-voM1Z9cGPCU */
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: cover;
+	background-color: #221c42;
+}
+
+.main-window {
+	width: var(--app-main-window-width);
+	height:var(--app-main-window-height);
+	position:fixed;
+	left: calc(50vw - var(--app-main-window-width) / 2);
+	top: calc(50vh - var(--app-main-window-height) / 2);
+	border-radius: 16px;
+	overflow: hidden;
+
+	background: #FFFFFF40;
+	box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+	backdrop-filter: blur(10px);
+	-webkit-backdrop-filter: blur(10px);
+	border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.main-window-bar { /* mostly invisible div that's draggable*/
+	width: 100%;
+	height: var(--app-main-window-bar-height);
+	cursor:pointer;
+	background-color: var(--app-main-colour);
+	z-index: 99; /* gets overlapped by the container. We need this on top for click events*/	
+}
+
+.main-window-container {
+	width: var(--app-main-window-width);
+	height:var(--app-main-window-height);
+	position:absolute;
+	top: 0px;
+}
+
+.side-bar, .notepad {
+	position: absolute;
+	height: 100%;
+	padding-top: var(--app-main-window-bar-height);
+}
+
+.side-bar {
+	left: var(--app-sidebar-left);
+	width:var(--app-sidebar-width);
+	background-color: #ffffff20;
+	border-right: 1px solid rgba(255, 255, 255, 0.3);
+	padding-left:10px;
+}
+
+.add-new {
+	color: #0000ff;
+	cursor: pointer;
+}
+
+li.note {
+	cursor: pointer;
+	font-size: 16px;
+}
+
+.notepad {
+	width: calc(100% - var(--app-sidebar-width) + var(--app-sidebar-left));
+	left: calc(var(--app-sidebar-width) + var(--app-sidebar-left));
+}
+
+.notepad-container {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+
+.notepad-footer {
+	display:flex;
+	flex-direction: row-reverse;
+	height: var(--app-notepad-footer-height);
+}
+
+.notepad-footer .save-button, .notepad-footer .cancel-button {
+	margin:8px;
+	display: block;
+	width:80px;
+	height: calc(var(--app-notepad-footer-height) - 16px);
+	text-align: center;
+	line-height: calc(var(--app-notepad-footer-height) - 16px);
+
+	cursor: pointer;
+}
+
+.save-button {
+	background-color: var(--app-save-button-colour);
+	color: #ffffff;
+	border-radius: 10px;
+}
+
+#file-name, #file-content {
+	resize: none;
+
+	margin: 5px;
+	padding:10px;
+
+	background: #FFFFFF00;
+	color: #ffffff;
+}
+#file-name::placeholder, #file-content::placeholder {
+	color: #DDDDDD;
+}
+#file-name::-webkit-scrollbar, #file-content::-webkit-scrollbar {
+	background-color: #00000000;
+}
+#file-name::-webkit-scrollbar-thumb, #file-content::-webkit-scrollbar-thumb {
+	background-color: var(--app-main-colour);
+	height:10px;
+	border-radius: 15px;
+}
+#file-name {
+	height: var(--app-file-name-size);
+	font-size: var(--app-file-name-size);
+}
+
+#file-content {
+	font-size: var(--app-file-content-size);
+	height: calc(100% - 10px);
+	border-radius: 15px;
+}
