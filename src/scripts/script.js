@@ -137,19 +137,29 @@ function loadNote(id) {
 function deleteNote(id) {
 	let savedNotes = localStorage.getItem("savedNotes");
 	if (!savedNotes) {
-		return false;
+		return;
 	}
 	let oldNotes = JSON.parse(savedNotes);
 	let noteIndex = oldNotes.findIndex(n => { return n.date == notes[id].date; });
-	if (noteIndex < 0) {
-		return false;
+	if (noteIndex > -1) {
+		oldNotes.splice(noteIndex, 1);
+		localStorage.setItem("savedNotes", JSON.stringify(oldNotes));
 	}
-	oldNotes.splice(noteIndex, 1);
-	localStorage.setItem("savedNotes", JSON.stringify(oldNotes));
-	notes.splice(id,1);
-	selectedNote = -1;
+	discardNote(id);	
+	deselectNote();
+	return;
+}
+
+function discardNote(id) {
 	deleteNoteElement(id);
-	return true;
+	notes.splice(id,1);
+	let noteElements = document.querySelectorAll("[data-id]");
+	noteElements.forEach(n=>{
+		let dataId = n.getAttribute('data-id');
+		if (dataId>id) {
+			n.setAttribute('data-id', dataId-1);
+		}
+	});
 }
 
 function addNew(event) {
@@ -177,9 +187,12 @@ function saveChanges(event) {
 function discardChanges(event) {
 	let noteExists = loadNote(selectedNote);
 	if (!noteExists) {
-		deleteNoteElement(selectedNote);
+		discardNote(selectedNote);
 	}
+	deselectNote();
+}
 
+function deselectNote() {
 	selectedNote = -1;
 	hideEditMenu();
 	setTitle("");

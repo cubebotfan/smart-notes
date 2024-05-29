@@ -49,7 +49,7 @@ body {
 	width: 100%;
 	height: var(--app-main-window-bar-height);
 	cursor:pointer;
-	background-color: var(--app-main-colour);
+	/* background-color: var(--app-main-colour); */
 	z-index: 99; /* gets overlapped by the container. We need this on top for click events*/	
 }
 
@@ -92,6 +92,7 @@ body {
 
 .note .note-trash {
 	margin-left: auto;
+	color: #800000;
 }
 
 .notepad {
@@ -126,6 +127,10 @@ body {
 	background-color: var(--app-save-button-colour);
 	color: #ffffff;
 	border-radius: 10px;
+}
+
+.cancel-button {
+	color: #ffffff;
 }
 
 #file-name, #file-content {
