@@ -27,9 +27,62 @@ function showEditMenu() {
 	EDIT_MENU.classList.remove('hide');
 }
 
-function saveNotes() {
-	localStorage.setItem("savedNotes", JSON.stringify(notes));
-	loadNotes();
+function createNoteElement(title, id) {
+	let li = document.createElement("li");
+	li.textContent = title;
+	li.onclick = noteClicked;
+	li.classList.add("note");
+	li.setAttribute("data-id", id);
+	return li;
+}
+
+function addNoteElement(title, id) {
+	let notesElement = document.getElementById('all-notes');
+	notesElement.append(createNoteElement(title,id));
+}
+
+function updateNoteElement(id, modified = true) {
+	let element = document.querySelector(`.note[data-id="${id}"]`);
+	if (element) {
+		element.textContent = ((modified) ? "*": "") + (notes[id].title || "unnamed");
+		return true;
+	}
+	return false;
+}
+
+function deleteNoteElement(id) {
+	let notesElement = document.getElementById('all-notes');
+
+	let element = document.querySelector(`.note[data-id="${id}"]`);
+	if (element) {
+		notesElement.removeChild(element);		
+	}
+	return false;
+}
+
+/* - - - - - - - - - -
+	Save and Load
+ - - -- - - - - - - */
+
+function saveNote(id) {
+	if (!notes[id].date) {
+		notes[id].date = Date.now();
+	}
+	let savedNotes = localStorage.getItem("savedNotes");
+	
+	if (!savedNotes) {
+		localStorage.setItem("savedNotes", "[]");
+		savedNotes = "[]";
+	}
+	let oldNotes = JSON.parse(savedNotes);
+	let noteIndex = oldNotes.findIndex(n=>{return n.date==notes[id].date;});
+	if (noteIndex>-1) {
+		oldNotes[noteIndex] = notes[id];
+	} else {
+		oldNotes.push(notes[id]);
+	}
+	localStorage.setItem("savedNotes", JSON.stringify(oldNotes));
+	updateNoteElement(id, false);
 }
 
 function loadNotes() {
@@ -40,28 +93,31 @@ function loadNotes() {
 	let notesElement = document.getElementById('all-notes');
 	notesElement.innerHTML = "";
 	notes.forEach((n,i)=>{
-		let li = document.createElement("li");
-		li.textContent = n.title;
-		li.onclick = noteClick;
-		li.classList.add("note");
-		li.setAttribute("data-id", i);
-		notesElement.appendChild(li);
+		notesElement.appendChild(createNoteElement(n.title, i));
 	});
 }
 
+function loadNote(id) {
+	let savedNotes = localStorage.getItem("savedNotes");
+	if (!savedNotes) {
+		return false;
+	}
+	let oldNotes = JSON.parse(savedNotes);
+	let loadedNote = oldNotes.find(n=>{return n.date==notes[id].date});
+	if (!loadedNote) {
+		return false;
+	}
+	notes[id] = loadedNote;
+	updateNoteElement(id, false);
+	return true;
+}
+
 function addNew(event) {
-	newNote();
+	newDraft();
 }
 
-function cancelEdit(event) {
-	let selectedNote = -1;
-	hideEditMenu();
-	setTitle("");
-	setContent("");
-	loadNotes();
-}
 
-function saveEdit(event) {
+function saveChanges(event) {
 	if (selectedNote<0) {
 		return;
 	}
@@ -75,24 +131,31 @@ function saveEdit(event) {
 		document.getElementById('file-content').focus();
 		return;
 	}
-
-	if (selectedNote >= notes.length) {
-		notes.push(new Note(title, content, Date.now()));
-	} else {
-		notes[selectedNote].title = title;
-		notes[selectedNote].content = content;
-	}
-	saveNotes();
+	saveNote(selectedNote);
 }
 
-function newNote() {
+function discardChanges(event) {
+	let noteExists = loadNote(selectedNote);
+	if (!noteExists) {
+		deleteNoteElement(selectedNote);
+	}
+
+	selectedNote = -1;
+	hideEditMenu();
+	setTitle("");
+	setContent("");
+}
+
+function newDraft() {
 	selectedNote = notes.length;
+	notes.push(new Note("",""));
+	addNoteElement("*unnamed", selectedNote);
 	setTitle("");
 	setContent("");
 	showEditMenu();
 }
 
-function noteClick(event) {
+function noteClicked(event) {
 	switchNote(event.target.getAttribute("data-id"));
 }
 function switchNote(id) {
@@ -103,16 +166,19 @@ function switchNote(id) {
 }
 
 function contentTyped(event) {
-	let note = document.querySelector(`.note[data-id="${selectedNote}"]`);
-	if (note) {
-		note.innerHTML = '*' + getTitle();
-	}
+	notes[selectedNote].title = getTitle();
+	notes[selectedNote].content = getContent();
+	updateNoteElement(selectedNote);
 }
 
 let notes = [];
 let selectedNote = -1;
 
 loadNotes();
+
+/* - - - - - - - - - -
+	Add event listeners
+ - - - - - - - - - - */
 
 let addNewButtons = [...document.getElementsByClassName("add-new")];
 addNewButtons.forEach(b=>{
@@ -121,12 +187,12 @@ addNewButtons.forEach(b=>{
 
 let saveButtons = [...document.getElementsByClassName("save-button")];
 saveButtons.forEach(b=>{
-	b.addEventListener("click", saveEdit);
+	b.addEventListener("click", saveChanges);
 });
 
 let cancelButtons = [...document.getElementsByClassName("cancel-button")];
 cancelButtons.forEach(b=>{
-	b.addEventListener("click", cancelEdit);
+	b.addEventListener("click", discardChanges);
 });
 
 document.getElementById('file-name').addEventListener("input",contentTyped);
