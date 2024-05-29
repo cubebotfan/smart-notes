@@ -69,6 +69,18 @@ function updateNoteElement(id, modified = true) {
 	return false;
 }
 
+function discardNote(id) {
+	deleteNoteElement(id);
+	notes.splice(id,1);
+	let noteElements = document.querySelectorAll("[data-id]");
+	noteElements.forEach(n=>{
+		let dataId = n.getAttribute('data-id');
+		if (dataId>id) {
+			n.setAttribute('data-id', dataId-1);
+		}
+	});
+}
+
 function deleteNoteElement(id) {
 	let notesElement = document.getElementById('all-notes');
 
@@ -77,6 +89,16 @@ function deleteNoteElement(id) {
 		notesElement.removeChild(element);
 	}
 	return false;
+}
+
+function selectNoteElement(id) {
+	let noteElements = document.querySelectorAll("[data-id]");
+	noteElements.forEach(n=>{
+		n.removeAttribute('data-selected');
+		if (n.getAttribute('data-id')==id) {
+			n.setAttribute('data-selected',"true")
+		}
+	});
 }
 
 /* - - - - - - - - - -
@@ -150,18 +172,6 @@ function deleteNote(id) {
 	return;
 }
 
-function discardNote(id) {
-	deleteNoteElement(id);
-	notes.splice(id,1);
-	let noteElements = document.querySelectorAll("[data-id]");
-	noteElements.forEach(n=>{
-		let dataId = n.getAttribute('data-id');
-		if (dataId>id) {
-			n.setAttribute('data-id', dataId-1);
-		}
-	});
-}
-
 function addNew(event) {
 	newDraft();
 }
@@ -197,6 +207,7 @@ function deselectNote() {
 	hideEditMenu();
 	setTitle("");
 	setContent("");
+	selectNoteElement(-1);
 }
 
 function newDraft() {
@@ -206,6 +217,7 @@ function newDraft() {
 	setTitle("");
 	setContent("");
 	showEditMenu();
+	selectNoteElement(selectedNote);
 }
 
 function noteClicked(event) {
@@ -225,6 +237,7 @@ function switchNote(id) {
 	setTitle(notes[selectedNote].title);
 	setContent(notes[selectedNote].content);
 	showEditMenu();
+	selectNoteElement(id);
 }
 
 function contentTyped(event) {

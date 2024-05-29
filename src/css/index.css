@@ -17,6 +17,9 @@
 	--app-main-colour: #00008020;
 
 	--app-save-button-colour: #0000ff;
+
+	--app-sidebar-font-colour: #000000;
+	--app-notepad-font-colour: #FFFFFF;
 }
 
 body {
@@ -61,9 +64,9 @@ body {
 }
 
 .side-bar, .notepad {
+	padding-top: var(--app-main-window-bar-height);
 	position: absolute;
 	height: 100%;
-	padding-top: var(--app-main-window-bar-height);
 }
 
 .side-bar {
@@ -72,6 +75,16 @@ body {
 	background-color: #ffffff20;
 	border-right: 1px solid rgba(255, 255, 255, 0.3);
 	padding-left:10px;
+	color: var(--app-sidebar-font-colour);
+}
+
+.side-bar-title {
+	margin-top:10px;
+	text-align: center;
+	width:var(--app-sidebar-width);
+	position:fixed; /* corner messes up the position normally */
+	left:0px;
+	top:0px;
 }
 
 .add-new-paragraph {
@@ -84,20 +97,32 @@ body {
 	cursor: pointer;
 }
 
+#all-notes {
+	margin-left:-11px; /* magic number because the border is being annoying.*/
+}
+
 .note {
 	cursor: pointer;
 	font-size: 16px;
 	display: flex;
+	width:100%;
+	padding-left:11px;
+}
+
+.note[data-selected] {
+	background-color:var(--app-main-colour);
 }
 
 .note .note-trash {
 	margin-left: auto;
 	color: #800000;
+	margin-top:3px; /* icons being weird*/
 }
 
 .notepad {
 	width: calc(100% - var(--app-sidebar-width) + var(--app-sidebar-left));
 	left: calc(var(--app-sidebar-width) + var(--app-sidebar-left));
+	color: var(--app-notepad-font-colour);
 }
 
 .notepad-container {
@@ -140,7 +165,7 @@ body {
 	padding:10px;
 
 	background: #FFFFFF00;
-	color: #ffffff;
+	color: var(--app-notepad-font-colour);
 }
 #file-name::placeholder, #file-content::placeholder {
 	color: #DDDDDD;
