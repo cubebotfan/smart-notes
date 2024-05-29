@@ -29,22 +29,41 @@ function showEditMenu() {
 
 function createNoteElement(title, id) {
 	let li = document.createElement("li");
-	li.textContent = title;
+	//li.textContent = title;
 	li.onclick = noteClicked;
 	li.classList.add("note");
 	li.setAttribute("data-id", id);
+	li.setAttribute("data-action", "switch");
+
+	let span = document.createElement("span");
+	span.classList.add("note-text");
+	span.setAttribute("data-id", id);
+	span.setAttribute("data-action", "switch");
+	span.textContent = title;
+	li.appendChild(span);
+
+	let deleteButton = document.createElement("i");
+	deleteButton.classList.add('bx');
+	deleteButton.classList.add('bx-trash');
+	deleteButton.classList.add("note-trash");
+
+	//deleteButton.onclick = noteClicked; //on parent already
+	deleteButton.setAttribute("data-id", id);
+	deleteButton.setAttribute("data-action", "delete");
+
+	li.appendChild(deleteButton);
 	return li;
 }
 
 function addNoteElement(title, id) {
 	let notesElement = document.getElementById('all-notes');
-	notesElement.append(createNoteElement(title,id));
+	notesElement.append(createNoteElement(title, id));
 }
 
 function updateNoteElement(id, modified = true) {
-	let element = document.querySelector(`.note[data-id="${id}"]`);
+	let element = document.querySelector(`.note[data-id="${id}"] span`);
 	if (element) {
-		element.textContent = ((modified) ? "*": "") + (notes[id].title || "unnamed");
+		element.textContent = ((modified) ? "*" : "") + (notes[id].title || "unnamed");
 		return true;
 	}
 	return false;
@@ -55,7 +74,7 @@ function deleteNoteElement(id) {
 
 	let element = document.querySelector(`.note[data-id="${id}"]`);
 	if (element) {
-		notesElement.removeChild(element);		
+		notesElement.removeChild(element);
 	}
 	return false;
 }
@@ -69,20 +88,23 @@ function saveNote(id) {
 		notes[id].date = Date.now();
 	}
 	let savedNotes = localStorage.getItem("savedNotes");
-	
+
 	if (!savedNotes) {
 		localStorage.setItem("savedNotes", "[]");
 		savedNotes = "[]";
 	}
 	let oldNotes = JSON.parse(savedNotes);
-	let noteIndex = oldNotes.findIndex(n=>{return n.date==notes[id].date;});
-	if (noteIndex>-1) {
+	let noteIndex = oldNotes.findIndex(n => { return n.date == notes[id].date; });
+	if (noteIndex > -1) {
 		oldNotes[noteIndex] = notes[id];
 	} else {
 		oldNotes.push(notes[id]);
 	}
+
+	oldNotes.sort((a,b)=>{return a.date-b.date}); //sort by date	
 	localStorage.setItem("savedNotes", JSON.stringify(oldNotes));
 	updateNoteElement(id, false);
+	return true;
 }
 
 function loadNotes() {
@@ -92,7 +114,7 @@ function loadNotes() {
 	}
 	let notesElement = document.getElementById('all-notes');
 	notesElement.innerHTML = "";
-	notes.forEach((n,i)=>{
+	notes.forEach((n, i) => {
 		notesElement.appendChild(createNoteElement(n.title, i));
 	});
 }
@@ -103,12 +125,30 @@ function loadNote(id) {
 		return false;
 	}
 	let oldNotes = JSON.parse(savedNotes);
-	let loadedNote = oldNotes.find(n=>{return n.date==notes[id].date});
+	let loadedNote = oldNotes.find(n => { return n.date == notes[id].date });
 	if (!loadedNote) {
 		return false;
 	}
 	notes[id] = loadedNote;
 	updateNoteElement(id, false);
+	return true;
+}
+
+function deleteNote(id) {
+	let savedNotes = localStorage.getItem("savedNotes");
+	if (!savedNotes) {
+		return false;
+	}
+	let oldNotes = JSON.parse(savedNotes);
+	let noteIndex = oldNotes.findIndex(n => { return n.date == notes[id].date; });
+	if (noteIndex < 0) {
+		return false;
+	}
+	oldNotes.splice(noteIndex, 1);
+	localStorage.setItem("savedNotes", JSON.stringify(oldNotes));
+	notes.splice(id,1);
+	selectedNote = -1;
+	deleteNoteElement(id);
 	return true;
 }
 
@@ -118,7 +158,7 @@ function addNew(event) {
 
 
 function saveChanges(event) {
-	if (selectedNote<0) {
+	if (selectedNote < 0) {
 		return;
 	}
 	let title = getTitle();
@@ -148,7 +188,7 @@ function discardChanges(event) {
 
 function newDraft() {
 	selectedNote = notes.length;
-	notes.push(new Note("",""));
+	notes.push(new Note("", ""));
 	addNoteElement("*unnamed", selectedNote);
 	setTitle("");
 	setContent("");
@@ -156,7 +196,16 @@ function newDraft() {
 }
 
 function noteClicked(event) {
-	switchNote(event.target.getAttribute("data-id"));
+	let id = event.target.getAttribute("data-id");
+	let action = event.target.getAttribute("data-action");
+	switch (action) {
+		case "switch":
+			switchNote(id);
+		break;
+		case "delete":
+			deleteNote(id);
+		break;
+	}
 }
 function switchNote(id) {
 	selectedNote = id;
@@ -181,19 +230,19 @@ loadNotes();
  - - - - - - - - - - */
 
 let addNewButtons = [...document.getElementsByClassName("add-new")];
-addNewButtons.forEach(b=>{
+addNewButtons.forEach(b => {
 	b.addEventListener("click", addNew);
 });
 
 let saveButtons = [...document.getElementsByClassName("save-button")];
-saveButtons.forEach(b=>{
+saveButtons.forEach(b => {
 	b.addEventListener("click", saveChanges);
 });
 
 let cancelButtons = [...document.getElementsByClassName("cancel-button")];
-cancelButtons.forEach(b=>{
+cancelButtons.forEach(b => {
 	b.addEventListener("click", discardChanges);
 });
 
-document.getElementById('file-name').addEventListener("input",contentTyped);
-document.getElementById('file-content').addEventListener("input",contentTyped);
+document.getElementById('file-name').addEventListener("input", contentTyped);
+document.getElementById('file-content').addEventListener("input", contentTyped);

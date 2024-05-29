@@ -7,7 +7,7 @@
 	--app-main-window-bar-height: 50px;
 
 	--app-sidebar-left: 0px; /* Change this to slide the sidebar into the left. Might not get time to implement */
-	--app-sidebar-width: 250px;
+	--app-sidebar-width: 200px;
 
 	--app-file-name-size: 36px;
 	--app-file-content-size: 24px;
@@ -84,9 +84,14 @@ body {
 	cursor: pointer;
 }
 
-li.note {
+.note {
 	cursor: pointer;
 	font-size: 16px;
+	display: flex;
+}
+
+.note .note-trash {
+	margin-left: auto;
 }
 
 .notepad {
